@@ -17,7 +17,7 @@ def index(request):
 
 def show(request, id):
     movie = Movie.objects.get(id=id)
-    reviews = Review.objects.filter(movie=movie)
+    reviews = Review.objects.filter(movie=movie, reported=False)
     template_data = {}
     template_data['title'] = movie.name
     template_data['movie'] = movie
@@ -60,6 +60,13 @@ def edit_review(request, id, review_id):
 def delete_review(request, id, review_id):
     review = get_object_or_404(Review, id=review_id, user=request.user)
     review.delete()
+    return redirect('movies.show', id=id)
+
+@login_required
+def report_review(request, id, review_id):
+    review = get_object_or_404(Review, id=review_id, movie_id=id)
+    review.reported = True
+    review.save()
     return redirect('movies.show', id=id)
 
 
